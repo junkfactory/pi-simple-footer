@@ -51,8 +51,14 @@ describe("renderContextDisplay", () => {
 
 	it("colors the raw display by ratio to the compaction trigger", () => {
 		// contextWindow 100_000 - reserve 20_000 => trigger 80_000.
-		assert.deepEqual(render({ contextWindow: 100_000, tokens: 39_999, percent: 25 }).calls, [
+		assert.deepEqual(render({ contextWindow: 100_000, tokens: 23_999, percent: 25 }).calls, [
 			{ color: "syntaxComment", text: "25.0%/100.0k ↻" },
+		]);
+		assert.deepEqual(render({ contextWindow: 100_000, tokens: 24_000, percent: 25 }).calls, [
+			{ color: "success", text: "25.0%/100.0k ↻" },
+		]);
+		assert.deepEqual(render({ contextWindow: 100_000, tokens: 39_999, percent: 25 }).calls, [
+			{ color: "success", text: "25.0%/100.0k ↻" },
 		]);
 		assert.deepEqual(render({ contextWindow: 100_000, tokens: 40_000, percent: 25 }).calls, [
 			{ color: "warning", text: "25.0%/100.0k ↻" },

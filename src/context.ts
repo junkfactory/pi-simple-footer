@@ -39,7 +39,8 @@ export function resolveReserveTokens(
  * Context window segment of the footer line. Color reflects how close context
  * is to the actual auto-compaction trigger:
  * trigger = contextWindow - reserveTokens (mirrors shouldCompact(),
- * compaction.js); warn at >= 50% of trigger, error at >= 80%.
+ * compaction.js); muted below 30% of trigger, success at >= 30%, warn at
+ * >= 50%, error at >= 80%.
  * " ↻" = auto-compact enabled.
  */
 export function renderContextDisplay(
@@ -69,5 +70,7 @@ export function renderContextDisplay(
     ? theme.fg("error", raw)
     : ratio >= 0.5
       ? theme.fg("warning", raw)
-      : theme.fg("syntaxComment", raw);
+      : ratio >= 0.3
+        ? theme.fg("success", raw)
+        : theme.fg("syntaxComment", raw);
 }
