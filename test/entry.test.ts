@@ -80,7 +80,10 @@ describe("footer entry", () => {
 			sessionName: "work",
 			compaction: { enabled: true, reserveTokens: 20_000 },
 		});
-		defaultExtension(pi);
+		// jj discovery walks the real ancestor tree, so stub it away: this case is
+		// about the plain-git wiring, and a `.jj` above $HOME must not flip the
+		// footer to the jj arm.
+		defaultExtension(pi, { existsSync: () => false });
 		const { ctx, ui } = fakeCtx({
 			// HOME-relative either way: shortCwd() yields "~/projects/demo"
 			// whether or not HOME is set.

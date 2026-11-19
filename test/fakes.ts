@@ -95,14 +95,28 @@ export type FakeCommand = {
 	handler: (args: string, ctx: ExtensionCommandContext) => Promise<void> | void;
 };
 
+export type FakeExecResult = { stdout?: string; code?: number; killed?: boolean };
+
+export type FakeExecCall = { command: string; args: string[]; opts: unknown };
+
+export type FakeExec = (
+	command: string,
+	args: string[],
+	opts: unknown,
+) => FakeExecResult | Promise<FakeExecResult>;
+
 export type FakePiOptions = {
 	sessionName?: string;
 	compaction?: CompactionSettings;
+	/** Probe stub for pi.exec; the default always fails so an unset stub cannot pass a test. */
+	exec?: FakeExec;
 };
 
 export function fakePi(options: FakePiOptions = {}) {
 	const handlers = new Map<string, FakeHandler>();
 	const commands = new Map<string, FakeCommand>();
+	const execCalls: FakeExecCall[] = [];
+	const runExec: FakeExec = options.exec ?? (() => ({ stdout: "", code: 1 }));
 	const state = { sessionName: options.sessionName, compaction: options.compaction };
 	const pi = {
 		on(event: string, handler: FakeHandler) {
@@ -120,8 +134,19 @@ export function fakePi(options: FakePiOptions = {}) {
 		getSessionName() {
 			return state.sessionName;
 		},
+		async exec(command: string, args: string[], opts?: unknown) {
+			execCalls.push({ command, args, opts });
+			const result = await runExec(command, args, opts);
+			return {
+				stdout: result.stdout ?? "",
+				stderr: "",
+				code: result.code ?? 1,
+				killed: result.killed ?? false,
+				truncated: false,
+			};
+		},
 	};
-	return { pi: pi as unknown as ExtensionAPI, handlers, commands, state };
+	return { pi: pi as unknown as ExtensionAPI, handlers, commands, state, execCalls };
 }
 
 export function eventHandler(handlers: Map<string, FakeHandler>, event: string): FakeHandler {
