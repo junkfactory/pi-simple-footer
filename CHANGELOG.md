@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.0]
+
+- Show the jj bookmark and change id in the footer branch slot
+
+
 ## [0.2.0]
 
 - Four-band context window coloring relative to the auto-compaction trigger: muted below 30%, green (`success`) at 30–50%, yellow (`warning`) at 50–80%, red (`error`) at 80%+. Previously the low band shared the footer's muted `syntaxComment` color, so healthy usage blended into the surrounding text.
